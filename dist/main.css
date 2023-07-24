@@ -1,0 +1,139 @@
+.container {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 100px;
+}
+
+.box {
+    padding: 10px 20px;
+    width: 400px;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #1e3c4d;
+    background-color: #dee2e5;
+    border-radius: 5px;
+    box-shadow: 0 0 5px 0 black;
+}
+
+.box-title {
+    height: 30px;
+    font-weight: bold;
+}
+
+.item {
+    position: relative;
+    margin-bottom: 10px;
+    min-height: 30px;
+    padding: 10px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 1px 1px 0 #abb5bd;
+}
+
+.item:hover {    
+    box-shadow: 0 0 5px 0 #abb5bd;
+}
+
+.item.dragged {
+    position: absolute;
+    opacity: 0.5;
+}
+
+.cross {
+    z-index: 999;
+    display: inline-block;
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    padding: 3px 5px 5px;
+    top: 5px;
+    right: 5px;
+    text-align: center;
+    opacity: 0.7;
+    border-radius: 5px;
+    background-color: #dee2e5;
+}
+
+.cross:hover {
+    color: #ffffff;
+    cursor: pointer;
+}
+
+.box-add-button {
+    display: inline-block;
+    padding: 5px 10px;    
+}
+
+.box-add-button:hover {
+    cursor: pointer;
+    text-decoration: underline dotted;
+}
+
+.hidden {
+    display: none;
+}
+
+.replacement {
+    opacity: 0;
+}
+
+.grabbing {
+    cursor: grabbing;
+}
+
+.preview {    
+    margin-bottom: 10px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 1px 1px 0 #abb5bd;
+    opacity: 0.5;
+}
+
+.todo-creator-input {
+    display: block;
+    margin-bottom: 10px;
+    min-height: 30px;
+    padding: 10px;
+    background-color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    box-shadow: 0 1px 1px 0 #abb5bd;
+}
+
+.todo-creator-input:hover {    
+    box-shadow: 0 0 5px 0 #abb5bd;
+}
+
+.todo-creator-btn {
+    display: inline-block;
+    margin-right: 10px;
+    min-height: 30px;
+    padding: 0 10px;
+    color: #ffffff;    
+    border: none;
+    border-radius: 5px;    
+}
+
+.todo-creator-btn:hover {
+    cursor: pointer;    
+}
+
+.todo-creator-btn-add {
+    background-color: #5ca84d;
+    box-shadow: 0 1px 1px 0 #426d2c;
+}
+
+.todo-creator-btn-add:hover {
+    box-shadow: 0 1px 3px 1px #426d2c;
+}
+
+.todo-creator-btn-close {
+    background-color: #abb5bd;
+    box-shadow: 0 1px 1px 0 #63696e;
+}
+
+.todo-creator-btn-close:hover {
+    box-shadow: 0 1px 3px 1px #63696e;
+}
+
+/*# sourceMappingURL=main.css.map*/
