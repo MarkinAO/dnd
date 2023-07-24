@@ -1,35 +1,11 @@
-import { v4 as uuidv4 } from 'uuid';
+import LocalStorageManager from "./LocalStorageManager";
 
 export default class ListEditor {
     constructor() {
         this.element = null;
         this.offset = {};
-        this.todoBoxes = [
-            {
-                title: 'Задачи 1',
-                todo: [
-                    'Задача 1.1',
-                    'Задача 1.2',
-                    'Задача 1.3'
-                ]
-            },
-            {
-                title: 'Задачи 2',
-                todo: [
-                    'Задача 2.1',
-                    'Задача 2.2',
-                    'Lorem ipsum dolor, sit amet consectetur adipisicing elit. Natus beatae laboriosam, excepturi numquam sed quidem consequuntur voluptas magni non iure. Explicabo ratione quasi, ipsum ex maiores fugit. Magnam, sit recusandae?'
-                ]
-            },
-            {
-                title: 'Задачи 3',
-                todo: [
-                    'Задача 3.1',
-                    'Задача 3.2',
-                    'Задача 3.3'
-                ]
-            }
-        ];
+        this.localStorage = new LocalStorageManager;
+        this.todoBoxes = this.localStorage.getData();        
     }
 
     init() {
@@ -37,8 +13,6 @@ export default class ListEditor {
         this.todoBoxes.forEach(el => {
             const box = document.createElement('div');
             box.classList.add('box');
-            const id = uuidv4();
-            box.setAttribute('data-id', id);
             container.appendChild(box);            
 
             const boxTitle = document.createElement('div');
@@ -56,26 +30,29 @@ export default class ListEditor {
             })
 
             const addTodoForm = document.createElement('form');
-            addTodoForm.classList.add('add-todo-form');
+            addTodoForm.classList.add('todo-creator-form');
             addTodoForm.classList.add('hidden');
             box.appendChild(addTodoForm);
 
             const addTodoInput = document.createElement('input');
-            addTodoInput.classList.add('add-todo-input');
-            addTodoInput.setAttribute('type', 'text')
+            addTodoInput.classList.add('todo-creator-input');
+            addTodoInput.setAttribute('type', 'text');
+            addTodoInput.setAttribute('name', 'text');
             addTodoForm.appendChild(addTodoInput);
 
             const todoBtnAdd = document.createElement('button');
-            todoBtnAdd.classList.add('todo-btn-add');
-            todoBtnAdd.classList.add('todo-btn');
+            todoBtnAdd.classList.add('todo-creator-btn-add');
+            todoBtnAdd.classList.add('todo-creator-btn');
             todoBtnAdd.textContent = 'Добавить карточку';
             addTodoForm.appendChild(todoBtnAdd);
+            todoBtnAdd.addEventListener('click', this.addTodo.bind(this));
 
             const todoBtnClose = document.createElement('button');
-            todoBtnClose.classList.add('todo-btn-close');
-            todoBtnClose.classList.add('todo-btn');
+            todoBtnClose.classList.add('todo-creator-btn-close');
+            todoBtnClose.classList.add('todo-creator-btn');
             todoBtnClose.innerHTML = '&#x2716;';
             addTodoForm.appendChild(todoBtnClose);
+            todoBtnClose.addEventListener('click', this.closeTodoCreator.bind(this));
 
             const btnAddTodo = document.createElement('a');
             btnAddTodo.classList.add('box-add-button');
@@ -83,39 +60,50 @@ export default class ListEditor {
             box.appendChild(btnAddTodo);            
         })
 
-        container.addEventListener('click', (e) => {
+        container.addEventListener('mouseup', (e) => {
             if(e.target.classList.contains('cross')) {
-                alert('!!!');
-                // this.deleteCard(e);
+                this.deleteCard(e);
             }                
-        })        
+        })
         
-        document.documentElement.addEventListener('mouseup', (e) => {
-            this.onMouseUp(e);
-        });
-        document.documentElement.addEventListener('mouseover', (e) => {
-            this.onMouseOver(e);
-        });        
+        document.documentElement.addEventListener('mouseup', this.onMouseUp.bind(this));
+        document.documentElement.addEventListener('mouseover', this.onMouseOver.bind(this));
 
-        container.addEventListener('click', (e) => {
-            this.showAddTodo(e);
-        });
+        container.addEventListener('click', this.showTodoCreator.bind(this));
 
-        this.showCross = this.showCross.bind(this);
-        container.addEventListener('mouseover', this.showCross);
-
-        container.addEventListener('mousedown', (e) => {
-                this.onMouseDown(e);
-        });
+        container.addEventListener('mouseover', this.showCross.bind(this));        
     }
 
-    showAddTodo(e) {
+    showTodoCreator(e) {
         if(e.target.classList.contains('box-add-button')) {
             e.target.classList.add('hidden');
             const box = e.target.closest('.box');
-            const form = box.querySelector('.add-todo-form');
+            const form = box.querySelector('.todo-creator-form');
             form.classList.remove('hidden');
         }
+    }
+
+    addTodo(e) {
+        e.preventDefault();
+        const form = e.target.closest('.todo-creator-form');
+        const formData = new FormData(form);
+        const items = e.target.closest('.box').querySelector('.items');
+        const text = formData.get('text');
+        const newTodo = this.createTodo(text);
+        items.appendChild(newTodo);
+        this.closeTodoCreator(e);
+        form.reset();
+        this.updateBox();
+        this.localStorage.saveData(this.todoBoxes);
+    }
+
+    closeTodoCreator(e) {
+        e.preventDefault();
+        const form = e.target.closest('.todo-creator-form');
+        form.classList.add('hidden');
+        const box = e.target.closest('.box');
+        const addButton = box.querySelector('.box-add-button');
+        addButton.classList.remove('hidden');
     }
 
     createPreviewCard() {
@@ -199,7 +187,9 @@ export default class ListEditor {
         cross.innerHTML = "&#x2716;";
         cross.classList.add('cross');
         cross.classList.add('hidden');
-        todo.appendChild(cross);
+        todo.appendChild(cross);       
+
+        todo.addEventListener('mousedown', this.onMouseDown.bind(this));        
 
         return todo;
     }
@@ -222,10 +212,23 @@ export default class ListEditor {
     }
 
     deleteCard(e) {
-        alert('Уверен?')        
-        const card = e.target.closest('item');
+        const card = e.target.closest('.item');
         card.remove();
     }
 
-    
+    updateBox() {
+        const boxes = [...document.querySelectorAll('.box')];        
+        this.todoBoxes = boxes.map(box => {
+            const el = {};
+            el.todo = [];
+            el.title = box.querySelector('.box-title').textContent;
+            const items = box.querySelectorAll('.item');
+            // console.log(el)
+            items.forEach(todo => {
+                el.todo.push(todo.textContent);
+            });
+            return el;
+        });
+        console.log(this.todoBoxes)
+    }
 }

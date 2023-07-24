@@ -40,6 +40,7 @@
 }
 
 .cross {
+    z-index: 999;
     display: inline-block;
     position: absolute;
     width: 20px;
@@ -88,7 +89,7 @@
     opacity: 0.5;
 }
 
-.add-todo-input {
+.todo-creator-input {
     display: block;
     margin-bottom: 10px;
     min-height: 30px;
@@ -99,11 +100,11 @@
     box-shadow: 0 1px 1px 0 #abb5bd;
 }
 
-.add-todo-input:hover {    
+.todo-creator-input:hover {    
     box-shadow: 0 0 5px 0 #abb5bd;
 }
 
-.todo-btn {
+.todo-creator-btn {
     display: inline-block;
     margin-right: 10px;
     min-height: 30px;
@@ -113,24 +114,24 @@
     border-radius: 5px;    
 }
 
-.todo-btn:hover {
+.todo-creator-btn:hover {
     cursor: pointer;    
 }
 
-.todo-btn-add {
+.todo-creator-btn-add {
     background-color: #5ca84d;
     box-shadow: 0 1px 1px 0 #426d2c;
 }
 
-.todo-btn-add:hover {
+.todo-creator-btn-add:hover {
     box-shadow: 0 1px 3px 1px #426d2c;
 }
 
-.todo-btn-close {
+.todo-creator-btn-close {
     background-color: #abb5bd;
     box-shadow: 0 1px 1px 0 #63696e;
 }
 
-.todo-btn-close:hover {
+.todo-creator-btn-close:hover {
     box-shadow: 0 1px 3px 1px #63696e;
 }
