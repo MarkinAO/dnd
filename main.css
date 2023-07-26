@@ -36,6 +36,7 @@
 
 .item.dragged {
     position: absolute;
+    transform: rotate(5deg);
     opacity: 0.5;
 }
 
@@ -78,7 +79,7 @@
 }
 
 .grabbing {
-    cursor: grabbing;
+    cursor: grabbing;    
 }
 
 .preview {    
