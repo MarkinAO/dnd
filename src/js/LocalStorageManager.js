@@ -27,8 +27,10 @@ export default class LocalStorageManager {
                 ]
             }
         ]);
-
-        localStorage.setItem('data', this.startData);
+        // console.log(localStorage.getItem('data'))
+        if(!localStorage.getItem('data')) {
+            localStorage.setItem('data', this.startData);
+        }        
     }
 
     saveData(data) {

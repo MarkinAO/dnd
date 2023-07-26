@@ -4,12 +4,15 @@ export default class ListEditor {
     constructor() {
         this.element = null;
         this.offset = {};
-        this.localStorage = new LocalStorageManager;
-        this.todoBoxes = this.localStorage.getData();        
+        this.localStorage = new LocalStorageManager();
+        this.todoBoxes = this.localStorage.getData();
+        this.currentMouseOver = null;
     }
 
     init() {
         const container = document.querySelector('.container');
+        container.innerHTML ='';
+        
         this.todoBoxes.forEach(el => {
             const box = document.createElement('div');
             box.classList.add('box');
@@ -93,8 +96,7 @@ export default class ListEditor {
         items.appendChild(newTodo);
         this.closeTodoCreator(e);
         form.reset();
-        this.updateBox();
-        this.localStorage.saveData(this.todoBoxes);
+        this.updateBox();        
     }
 
     closeTodoCreator(e) {
@@ -106,22 +108,32 @@ export default class ListEditor {
         addButton.classList.remove('hidden');
     }
 
-    createPreviewCard() {
+    createPreviewCard(startPreview) {
         this.removePreview();
+        
+        if(document.querySelector('startPreview')) return;
+        const typePreview = startPreview ? 'startPreview' : 'preview';
         const preview = document.createElement('div');
-        preview.classList.add('preview');
+        preview.classList.add(typePreview);
         preview.style.height = this.element.clientHeight + 'px';
 
-        return preview;
+        return preview;        
     }
 
-    removePreview() {
-        const preview = document.querySelector('.preview');
-        if(preview) preview.remove();
+    removePreview(allPreview = false) {
+        const startPreview = document.querySelector('.startPreview');
+        if(allPreview && startPreview) startPreview.remove();
+        const preview = [...document.querySelectorAll('.preview')];
+        if(preview) preview.forEach(el => el.remove());
     }
 
     onMouseOver(e) {
-        if(!this.element) return;
+        if(!this.element || this.element === e.target) return;
+
+        if(this.currentMouseOver && this.currentMouseOver === e.target) return
+        this.currentMouseOver = e.target;
+        
+        this.removePreview();
         const { top, left } = this.element.getBoundingClientRect();
 
         if(!this.offset.top) {
@@ -134,30 +146,34 @@ export default class ListEditor {
 
         const item = e.target;
         const preview = this.createPreviewCard();
+        
         if(item.closest('.items')) {
             const { top } = item.getBoundingClientRect();
             if(e.clientY < top + item.clientHeight / 2) {
                 item.before(preview);
             } else {
                 item.after(preview);
-            }            
+            }
         }
     }
 
     onMouseDown(e) {
-        e.preventDefault();
+        e.preventDefault();        
         this.element = e.target;
         if(!this.element.classList.contains('item')) return;
         
+        const startPreview = this.createPreviewCard('startPreview');
+        this.element.after(startPreview);
+
         const elementStyle = getComputedStyle(this.element);
         this.element.style.width = elementStyle.width;
-        this.element.classList.add('dragged'); 
+        this.element.classList.add('dragged');
         document.body.classList.add('grabbing');
     }
 
     onMouseUp(e) {
         if(!this.element) return;
-        this.removePreview();
+        this.removePreview(true);
 
         const mouseUpItem = e.target;        
         if(mouseUpItem.closest('.items')) {
@@ -176,6 +192,8 @@ export default class ListEditor {
         document.body.classList.remove('grabbing');
         this.element = null;
         this.offset = {};
+        this.updateBox();
+        this.init();
     }
 
     createTodo(text) {
@@ -214,6 +232,7 @@ export default class ListEditor {
     deleteCard(e) {
         const card = e.target.closest('.item');
         card.remove();
+        this.updateBox();
     }
 
     updateBox() {
@@ -223,12 +242,12 @@ export default class ListEditor {
             el.todo = [];
             el.title = box.querySelector('.box-title').textContent;
             const items = box.querySelectorAll('.item');
-            // console.log(el)
+            
             items.forEach(todo => {
-                el.todo.push(todo.textContent);
+                el.todo.push(todo.textContent.slice(0, todo.textContent.length - 1));
             });
             return el;
         });
-        console.log(this.todoBoxes)
+        this.localStorage.saveData(this.todoBoxes);
     }
 }
